@@ -5,7 +5,7 @@ const ProtectedRoute = () => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>; // Add a proper loader component here
+    return <div>Loading...</div>; 
   }
 
   return user ? <Outlet /> : <Navigate to="/" replace />;

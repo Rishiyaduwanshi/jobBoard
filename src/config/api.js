@@ -8,8 +8,8 @@ export const API_ENDPOINTS = {
     FORGOT_PASSWORD: '/forgot-password',
   },
   JOBS: {
-    LIST: 'jobs',
-    CREATE: 'jobs/create',
+    LIST: '/jobs',
+    CREATE: '/jobs',
     UPDATE: 'jobs/:id',
     DELETE: 'jobs/:id',
     APPLY: 'jobs/:id/apply',
@@ -97,6 +97,27 @@ export const mockApi = {
     }
   },
 
+  createJob: async (jobData) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}${API_ENDPOINTS.JOBS.CREATE}`,
+        jobData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Job creation error:', error);
+      return {
+        success: false,
+        message: error.response?.data?.message || 'Job posting failed'
+      };
+    }
+  },
 
   checkAuth: async () => {
     try {

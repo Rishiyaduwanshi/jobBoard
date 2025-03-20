@@ -9,6 +9,7 @@ import JobListings from './pages/JobListings';
 import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import PostJob from './pages/PostJob';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
               <Route path="/signup" element={<Signup />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/post-job" element={<PostJob />} />
               </Route>
               <Route path="/jobs" element={<JobListings />} />
               <Route path="/profile" element={<Profile />} />

@@ -34,5 +34,4 @@ const JobCard = ({ job, showApply }) => {
   );
 };
 
-// Add this export at the end
 export default JobCard;
