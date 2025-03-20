@@ -1,0 +1,158 @@
+import { useState, useEffect } from 'react';
+import { mockApi } from '../config/api';
+import { useAuth } from '../context/AuthContext';
+import toast from 'react-hot-toast';
+import JobCard from '../components/JobCard'; 
+
+function JobListings() {
+  const [jobs, setJobs] = useState([]);
+  const [filters, setFilters] = useState({
+    location: '',
+    salary: '',
+    experience: '',
+    type: ''
+  });
+  const { user } = useAuth();
+
+  useEffect(() => {
+    loadJobs();
+  }, [filters]);
+
+  const loadJobs = async () => {
+    const data = await mockApi.getJobs(filters);
+    setJobs(data);
+  };
+
+  const handleApply = async (jobId) => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Application submitted successfully!');
+    } catch (error) {
+      toast.error('Failed to submit application');
+    }
+  };
+
+  const handleSaveJob = async (jobId) => {
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success('Job saved successfully!');
+    } catch (error) {
+      toast.error('Failed to save job');
+    }
+  };
+
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="w-full md:w-1/4">
+          <div className="card sticky top-4">
+            <h2 className="text-xl font-bold mb-4">Filters</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Location</label>
+                <input
+                  type="text"
+                  value={filters.location}
+                  onChange={(e) => setFilters({...filters, location: e.target.value})}
+                  className="input-field w-full"
+                  placeholder="Any location"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Salary Range</label>
+                <select
+                  value={filters.salary}
+                  onChange={(e) => setFilters({...filters, salary: e.target.value})}
+                  className="input-field w-full"
+                >
+                  <option value="">Any salary</option>
+                  <option value="0-50000">$0 - $50,000</option>
+                  <option value="50000-100000">$50,000 - $100,000</option>
+                  <option value="100000+">$100,000+</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Experience</label>
+                <select
+                  value={filters.experience}
+                  onChange={(e) => setFilters({...filters, experience: e.target.value})}
+                  className="input-field w-full"
+                >
+                  <option value="">Any experience</option>
+                  <option value="entry">Entry Level</option>
+                  <option value="mid">Mid Level</option>
+                  <option value="senior">Senior Level</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Job Type</label>
+                <select
+                  value={filters.type}
+                  onChange={(e) => setFilters({...filters, type: e.target.value})}
+                  className="input-field w-full"
+                >
+                  <option value="">Any type</option>
+                  <option value="full-time">Full Time</option>
+                  <option value="part-time">Part Time</option>
+                  <option value="contract">Contract</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="w-full md:w-3/4">
+          <h1 className="text-3xl font-bold mb-6">Available Jobs</h1>
+          <div className="space-y-4">
+            {jobs.map(job => (
+              <div key={job._id} className="card hover:border-primary-500 transition-colors">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-xl font-bold">{job.title}</h2>
+                    <p className="text-gray-400">{job.company}</p>
+                  </div>
+                  <span className="text-primary-400 font-semibold">{job.salary}</span>
+                </div>
+                
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">
+                    {job.location}
+                  </span>
+                  <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">
+                    {job.type}
+                  </span>
+                  <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">
+                    {job.experience}
+                  </span>
+                </div>
+
+                <p className="mt-4 text-gray-300">{job.description}</p>
+
+                <div className="mt-6 flex gap-4">
+                  {user?.role === 'applicant' && (
+                    <>
+                      <button
+                        onClick={() => handleApply(job.id)}
+                        className="btn-primary"
+                      >
+                        Apply Now
+                      </button>
+                      <button
+                        onClick={() => handleSaveJob(job.id)}
+                        className="px-4 py-2 border border-primary-500 text-primary-500 rounded-md hover:bg-primary-500 hover:text-white transition-colors"
+                      >
+                        Save Job
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default JobListings;
