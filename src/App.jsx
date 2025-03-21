@@ -29,7 +29,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/post-job" element={<PostJob />} />
-                <Route path="/edit-job/:id" element={<EditJob />} />
+                <Route path="/edit-job/:jobId" element={<EditJob />} />
               </Route>
               <Route path="/jobs" element={<JobListings />} />
               <Route path="/profile" element={<Profile />} />

@@ -205,9 +205,14 @@ export const mockApi = {
 
   getJob: async (jobId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}?id=${jobId}`, {
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}`, {
+        params: { id: jobId },
         withCredentials: true
       });
+
+      if (!response.data?.data) {
+        throw new Error('Invalid response structure');
+      }
       return response.data.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch job');
