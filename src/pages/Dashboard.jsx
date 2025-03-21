@@ -58,7 +58,6 @@ function Dashboard() {
     setSelectedJob(prev => ({ ...prev, applications }));
   };
 
-  // Add this status change handler
   const handleStatusChange = async (applicationId, newStatus) => {
     try {
       const response = await mockApi.updateApplicationStatus(applicationId, newStatus);
@@ -90,7 +89,7 @@ function Dashboard() {
           <div key={job._id} className="card relative">
             <div className="absolute top-2 right-2 flex gap-2">
               <button
-                onClick={() => navigate(`/post-job/${job._id}`)}
+                onClick={() => navigate(`/edit-job/${job._id}`)}
                 className="text-primary-400 hover:text-primary-300"
               >
                 Edit

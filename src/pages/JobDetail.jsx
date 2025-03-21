@@ -115,7 +115,6 @@ function JobDetail() {
         )}
 
         
-        // Update the applications rendering section
         {user?.role === 'recruiter' && job.applications?.length > 0 && (
           <div className="mt-8">
             <h3 className="text-xl font-bold mb-4">Applications ({job.applications.length})</h3>
