@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import PostJob from './pages/PostJob';
 import JobDetail from './pages/JobDetail';
 import NotFound from './pages/NotFound';
+import EditJob from './pages/EditJob';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/post-job" element={<PostJob />} />
+                <Route path="/edit-job/:id" element={<EditJob />} />
               </Route>
               <Route path="/jobs" element={<JobListings />} />
               <Route path="/profile" element={<Profile />} />

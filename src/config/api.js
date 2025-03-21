@@ -10,8 +10,8 @@ export const API_ENDPOINTS = {
   JOBS: {
     LIST: '/jobs',
     CREATE: '/jobs',
-    UPDATE: '/jobs/:id',
-    DELETE: '/jobs/:id',
+    UPDATE: '/jobs/:jobId',
+    DELETE: '/jobs/:jobId',
     APPLY: '/jobs/apply',
     //   '/jobs?id=:id', // for everyone get job deatils
     //   '/jobs?applied=true' // for users and recruiters get applied jobs
@@ -142,17 +142,35 @@ export const mockApi = {
     }
   },
 
-    deleteJob: async (jobId) => {
-      try {
-        const response = await axios.delete(
-          `${API_BASE_URL}${API_ENDPOINTS.JOBS.DELETE.replace(':id', jobId)}`,
-          { withCredentials: true }
-        );
-        return response.data;
-      } catch (error) {
-        throw new Error(error.response?.data?.message || 'Failed to delete job');
-      }
-    },
+  deleteJob: async (jobId) => {
+    try {
+      const response = await axios.delete(
+        `${API_BASE_URL}${API_ENDPOINTS.JOBS.DELETE.replace(':jobId', jobId)}`,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to delete job');
+    }
+  },
+
+  updateJob : async (jobId, jobData) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}${API_ENDPOINTS.JOBS.UPDATE.replace(':jobId', jobId)}`,
+        jobData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true
+        }
+      ); 
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to update job'); 
+    }
+  },
 
   checkAuth: async () => {
     try {
@@ -187,8 +205,7 @@ export const mockApi = {
 
   getJob: async (jobId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}`, {
-        params: { id: jobId },
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}?id=${jobId}`, {
         withCredentials: true
       });
       return response.data.data;
@@ -225,5 +242,5 @@ export const mockApi = {
     }
   },
 
-  
+
 };
