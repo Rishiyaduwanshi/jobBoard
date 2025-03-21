@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PostJob from './pages/PostJob';
+import JobDetail from './pages/JobDetail';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <main className="container mx-auto px-4 py-8">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route element={<ProtectedRoute />}>

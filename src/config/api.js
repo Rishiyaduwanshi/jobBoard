@@ -3,8 +3,8 @@ export const API_ENDPOINTS = {
   AUTH: {
     LOGIN: '/signin',
     SIGNUP: '/signup',
-    CHECK_AUTH: '/auth/me', 
-    SIGNOUT: '/signout',        
+    CHECK_AUTH: '/auth/me',
+    SIGNOUT: '/signout',
     FORGOT_PASSWORD: '/forgot-password',
   },
   JOBS: {
@@ -12,7 +12,12 @@ export const API_ENDPOINTS = {
     CREATE: '/jobs',
     UPDATE: 'jobs/:id',
     DELETE: 'jobs/:id',
-    APPLY: 'jobs/:id/apply',
+    APPLY: '/jobs/apply',
+//   '/jobs?id=:id', // for everyone get job deatils
+ //   '/jobs?applied=true' // for users and recruiters get applied jobs
+
+
+
   },
   USER: {
     PROFILE: 'user/profile',
@@ -40,19 +45,19 @@ export const mockApi = {
           headers: {
             'Content-Type': 'application/json',
           },
-          withCredentials: true 
+          withCredentials: true
         }
       );
       return response.data;
     } catch (error) {
       console.error('Login error:', error);
-      return { 
+      return {
         success: false,
         message: error.response?.data?.message || 'Login failed'
       };
     }
   },
-  
+
   signup: async (userData) => {
     try {
       const response = await axios.post(
@@ -68,32 +73,46 @@ export const mockApi = {
       return response.data;
     } catch (error) {
       console.error('Signup error:', error);
-      return { 
-        success: false, 
-        message: error.response?.data?.message || 'An error occurred during signup' 
+      return {
+        success: false,
+        message: error.response?.data?.message || 'An error occurred during signup'
       };
     }
   },
-  
-  getJobs: async () => {
+
+  // Update getJobs method
+  getJobs: async (filters) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/jobs`);
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}`, {
+        params: filters,
+        withCredentials: true
+      });
       return response.data.data;
     } catch (error) {
-      return { success: false };
+      console.error('Error fetching jobs:', error);
+      return { 
+        success: false,
+        message: error.response?.data?.message || 'Failed to fetch jobs' 
+      };
     }
   },
 
   applyJob: async (jobId) => {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/jobs/apply`,
+        `${API_BASE_URL}${API_ENDPOINTS.JOBS.APPLY}`,
         { jobId },
-        { withCredentials: true }
+        {
+          headers: {'Content-Type': 'application/json'},
+          withCredentials: true
+        }
       );
-      return response.data;
+      return response.data; 
     } catch (error) {
-      return { success: false };
+      return error.response?.data || { 
+        success: false,
+        message: error.message || 'Application failed' 
+      };
     }
   },
 
@@ -127,9 +146,9 @@ export const mockApi = {
       );
       return response.data;
     } catch (error) {
-      return { 
+      return {
         success: false,
-        message: error.response?.data?.message || 'Not authenticated' 
+        message: error.response?.data?.message || 'Not authenticated'
       };
     }
   },
@@ -143,10 +162,22 @@ export const mockApi = {
       );
       return { success: true };
     } catch (error) {
-      return { 
+      return {
         success: false,
-        message: error.response?.data?.message || 'Logout failed' 
+        message: error.response?.data?.message || 'Logout failed'
       };
+    }
+  },
+
+  getJob: async (jobId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}`, {
+        params: { id: jobId },
+        withCredentials: true
+      });
+      return response.data.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch job');
     }
   }
 };

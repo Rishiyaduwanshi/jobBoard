@@ -10,6 +10,8 @@ const Navbar = () => {
         <Link to="/" className="text-xl font-bold">JobBoard</Link>
         
         <div className="space-x-4">
+        <Link to="/jobs" className="hover:text-primary-500">Jobs</Link>
+
           {user ? (
             <>
               <Link to="/dashboard" className="hover:text-primary-500">Dashboard</Link>
@@ -21,7 +23,6 @@ const Navbar = () => {
               <Link to="/signup" className="hover:text-primary-500">Signup</Link>
             </>
           )}
-          <Link to="/jobs" className="hover:text-primary-500">Jobs</Link>
         </div>
       </div>
     </nav>

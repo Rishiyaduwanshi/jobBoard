@@ -5,8 +5,8 @@ const JobCard = ({ job, showApply }) => {
 
   const handleApply = async () => {
     try {
-      await mockApi.applyJob(job._id);
-      alert('Application submitted successfully!');
+      const response = await mockApi.applyJob(job._id);
+      alert(response);
     } catch (error) {
       console.error('Application error:', error);
     }

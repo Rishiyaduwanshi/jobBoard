@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { mockApi } from '../config/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
-import JobCard from '../components/JobCard'; 
+import JobCard from '../components/JobCard';
+import { Link } from 'react-router-dom';
 
 function JobListings() {
   const [jobs, setJobs] = useState([]);
@@ -25,10 +26,17 @@ function JobListings() {
 
   const handleApply = async (jobId) => {
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast.success('Application submitted successfully!');
+      const response = await mockApi.applyJob(jobId);
+      if (response.success) {
+        toast.success(response.message);
+        setJobs(prev => prev.map(job =>
+          job._id === jobId ? { ...job, isApplied: true } : job
+        ));
+      } else {
+        toast.error(response.message || 'Application failed');
+      }
     } catch (error) {
-      toast.error('Failed to submit application');
+      toast.error(error.message || 'Failed to submit application');
     }
   };
 
@@ -53,7 +61,7 @@ function JobListings() {
                 <input
                   type="text"
                   value={filters.location}
-                  onChange={(e) => setFilters({...filters, location: e.target.value})}
+                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
                   className="input-field w-full"
                   placeholder="Any location"
                 />
@@ -62,7 +70,7 @@ function JobListings() {
                 <label className="block text-sm font-medium mb-1">Salary Range</label>
                 <select
                   value={filters.salary}
-                  onChange={(e) => setFilters({...filters, salary: e.target.value})}
+                  onChange={(e) => setFilters({ ...filters, salary: e.target.value })}
                   className="input-field w-full"
                 >
                   <option value="">Any salary</option>
@@ -75,7 +83,7 @@ function JobListings() {
                 <label className="block text-sm font-medium mb-1">Experience</label>
                 <select
                   value={filters.experience}
-                  onChange={(e) => setFilters({...filters, experience: e.target.value})}
+                  onChange={(e) => setFilters({ ...filters, experience: e.target.value })}
                   className="input-field w-full"
                 >
                   <option value="">Any experience</option>
@@ -88,12 +96,13 @@ function JobListings() {
                 <label className="block text-sm font-medium mb-1">Job Type</label>
                 <select
                   value={filters.type}
-                  onChange={(e) => setFilters({...filters, type: e.target.value})}
+                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
                   className="input-field w-full"
                 >
                   <option value="">Any type</option>
                   <option value="full-time">Full Time</option>
                   <option value="part-time">Part Time</option>
+                  <option value="contract">Internship</option>
                   <option value="contract">Contract</option>
                 </select>
               </div>
@@ -108,12 +117,16 @@ function JobListings() {
               <div key={job._id} className="card hover:border-primary-500 transition-colors">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h2 className="text-xl font-bold">{job.title}</h2>
+                    <h2 className="text-xl font-bold">
+                      <Link to={`/jobs/${job._id}`} className="hover:text-primary-400 transition-colors">
+                        {job.title}
+                      </Link>
+                    </h2>
                     <p className="text-gray-400">{job.company}</p>
                   </div>
                   <span className="text-primary-400 font-semibold">{job.salary}</span>
                 </div>
-                
+
                 <div className="mt-4 flex flex-wrap gap-2">
                   <span className="px-3 py-1 bg-gray-700 rounded-full text-sm">
                     {job.location}
@@ -126,19 +139,20 @@ function JobListings() {
                   </span>
                 </div>
 
-                <p className="mt-4 text-gray-300">{job.description}</p>
+                <p className="mt-4 text-gray-300">{job.description.slice(0, 200) + "..."}</p>
 
                 <div className="mt-6 flex gap-4">
                   {user?.role === 'applicant' && (
                     <>
                       <button
-                        onClick={() => handleApply(job.id)}
+                        onClick={() => handleApply(job._id)}
                         className="btn-primary"
+                        disabled={!job._id || job.isApplied}
                       >
-                        Apply Now
+                        {job.isApplied ? 'Applied ✓' : 'Apply Now'}
                       </button>
                       <button
-                        onClick={() => handleSaveJob(job.id)}
+                        onClick={() => handleSaveJob(job._id)}
                         className="px-4 py-2 border border-primary-500 text-primary-500 rounded-md hover:bg-primary-500 hover:text-white transition-colors"
                       >
                         Save Job
