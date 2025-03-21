@@ -41,6 +41,25 @@ function JobDetail() {
     }
   };
 
+
+  const handleStatusChange = async (applicationId, newStatus) => {
+    try {
+      const response = await mockApi.updateApplicationStatus(applicationId, newStatus);
+      if (response.success) {
+        toast.success(`Status updated to ${newStatus}`);
+        setJob(prev => ({
+          ...prev,
+          applications: prev.applications.map(app => 
+            app._id === applicationId ? { ...app, status: newStatus } : app
+          )
+        }));
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+  
+
   if (loading) return <div className="container mx-auto px-4 py-8">Loading...</div>;
 
   return (
@@ -95,6 +114,8 @@ function JobDetail() {
           </div>
         )}
 
+        
+        // Update the applications rendering section
         {user?.role === 'recruiter' && job.applications?.length > 0 && (
           <div className="mt-8">
             <h3 className="text-xl font-bold mb-4">Applications ({job.applications.length})</h3>
@@ -105,10 +126,23 @@ function JobDetail() {
                     <div>
                       <p className="font-medium">{application.applicant?.name}</p>
                       <p className="text-gray-400 text-sm">{application.applicant?.email}</p>
+                      <p className="text-sm mt-2">Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
                     </div>
-                    <span className={`badge-${application.status} px-2 py-1 rounded-md`}>
-                      {application.status}
-                    </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <select
+                        value={application.status}
+                        onChange={(e) => handleStatusChange(application._id, e.target.value)}
+                        className={`badge-${application.status.toLowerCase} px-3 py-1 rounded-md bg-gray-700 border border-gray-600`}
+                      >
+                        <option value="applied">Applied</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="shortlisted">Shortlisted</option>
+                        <option value="rejected">Rejected</option>
+                      </select>
+                      <span className="text-xs text-gray-400">
+                        Last updated: {new Date(application.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

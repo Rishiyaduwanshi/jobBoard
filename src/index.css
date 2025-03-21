@@ -14,4 +14,9 @@
   .card {
     @apply bg-gray-800 rounded-lg shadow-lg p-6 border border-gray-700;
   }
+  
+  .badge-applied { background-color: #3b82f6; color: white; }
+  .badge-reviewed { background-color: #f59e0b; color: black; }
+  .badge-shortlisted { background-color: #10b981; color: white; }
+  .badge-rejected { background-color: #ef4444; color: white; }
 }
