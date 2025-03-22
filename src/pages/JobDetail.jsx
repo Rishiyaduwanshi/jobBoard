@@ -125,13 +125,14 @@ function JobDetail() {
                     <div>
                       <p className="font-medium">{application.applicant?.name}</p>
                       <p className="text-gray-400 text-sm">{application.applicant?.email}</p>
-                      <p className="text-sm mt-2">Applied: {new Date(application.createdAt).toLocaleDateString()}</p>
+                      {/* <p className="text-sm mt-2">Applied: {new Date(application.createdAt).toLocaleDateString()}</p> */}
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <select
                         value={application.status}
                         onChange={(e) => handleStatusChange(application._id, e.target.value)}
-                        className={`badge-${application.status.toLowerCase} px-3 py-1 rounded-md bg-gray-700 border border-gray-600`}
+                   
+                        className={`badge-${application.status ? application.status.toLowerCase() : 'applied'} px-3 py-1 rounded-md bg-gray-700 border border-gray-600`}
                       >
                         <option value="applied">Applied</option>
                         <option value="reviewed">Reviewed</option>

@@ -99,6 +99,7 @@ function PostJob() {
             >
               <option>Full-time</option>
               <option>Part-time</option>
+              <option>Internship</option>
               <option>Contract</option>
             </select>
           </div>
