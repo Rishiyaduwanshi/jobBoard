@@ -230,6 +230,18 @@ export const mockApi = {
     }
   },
 
+  getJobApplications: async (jobId) => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}${API_ENDPOINTS.JOBS.LIST}/${jobId}/applications`,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch applications');
+    }
+  },
+
   updateApplicationStatus: async (applicationId, status) => {
     try {
       const response = await axios.patch(
@@ -245,7 +257,6 @@ export const mockApi = {
       throw new Error(error.response?.data?.message || 'Status update failed');
     }
   },
-
 
     getProfile: async () => {
       try {

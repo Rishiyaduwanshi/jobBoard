@@ -20,3 +20,9 @@
   .badge-shortlisted { background-color: #10b981; color: white; }
   .badge-rejected { background-color: #ef4444; color: white; }
 }
+
+
+.sticky-scroll-container {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
