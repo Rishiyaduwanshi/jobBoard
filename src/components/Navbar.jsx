@@ -21,7 +21,6 @@ const Navbar = () => {
           ) : (
             <>
               <Link to="/login" className="hover:text-primary-500">Login</Link>
-              <Link to="/profile" className="nav-link">Profile</Link>
               <Link to="/signup" className="hover:text-primary-500">Signup</Link>
             </>
           )}
