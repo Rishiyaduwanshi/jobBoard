@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import JobListings from './pages/JobListings';
-import Profile from './pages/Profile';
+import ProfileForm from './pages/ProfileForm';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import PostJob from './pages/PostJob';
@@ -30,9 +30,10 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/post-job" element={<PostJob />} />
                 <Route path="/edit-job/:jobId" element={<EditJob />} />
+                <Route path="/profile" element={<ProfileForm />} />
               </Route>
               <Route path="/jobs" element={<JobListings />} />
-              <Route path="/profile" element={<Profile />} />
+              {/* <Route path="/profile" element={<ProtectedRoute><ProfileForm /></ProtectedRoute>} /> */}
             <Route path="*" element={<NotFound />} />
             </Routes>
           </main>

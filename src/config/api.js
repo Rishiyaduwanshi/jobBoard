@@ -20,8 +20,7 @@ export const API_ENDPOINTS = {
 
   },
   USER: {
-    PROFILE: 'user/profile',
-    UPDATE_PROFILE: 'user/profile/update',
+    PROFILE: '/profile',
     APPLICATIONS: 'user/applications',
     SAVED_JOBS: 'user/saved-jobs',
   },
@@ -154,7 +153,7 @@ export const mockApi = {
     }
   },
 
-  updateJob : async (jobId, jobData) => {
+  updateJob: async (jobId, jobData) => {
     try {
       const response = await axios.patch(
         `${API_BASE_URL}${API_ENDPOINTS.JOBS.UPDATE.replace(':jobId', jobId)}`,
@@ -165,10 +164,10 @@ export const mockApi = {
           },
           withCredentials: true
         }
-      ); 
+      );
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Failed to update job'); 
+      throw new Error(error.response?.data?.message || 'Failed to update job');
     }
   },
 
@@ -248,4 +247,36 @@ export const mockApi = {
   },
 
 
+    getProfile: async () => {
+      try {
+        const response = await axios.get(
+          `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
+          { withCredentials: true }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error(error.response?.data?.message || 'Failed to fetch profile');
+      }
+    },
+  
+    updateProfile: async (data) => {
+      try {
+        const response = await axios.patch(
+          `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
+          data,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true
+          }
+        );
+        return response.data.data;
+      } catch (error) {
+        const message = error.response?.data?.message ||
+          error.message ||
+          'Profile update failed';
+        throw new Error(message);
+      }
+    },
 };
