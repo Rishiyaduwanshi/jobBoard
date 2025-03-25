@@ -20,53 +20,82 @@ function ProfileForm() {
         companyDescription: ''
     });
 
+    const [profileLoaded, setProfileLoaded] = useState(false);
+
     useEffect(() => {
+        if (profileLoaded) return;
         const fetchProfile = async () => {
             try {
                 let profileData = user;
-                
-                // First check localStorage before API call
-                if (!profileData) {
-                    const localUser = localStorage.getItem('user');
-                    if (localUser) {
-                        profileData = JSON.parse(localUser);
-                    } else {
-                        const response = await mockApi.getProfile();
-                        profileData = response.data.data; // Add .data to match API nesting
+                if (profileData && profileData._id && (!profileData.bio || !profileData.phone)) {
+                    try {
+                        const response = await mockApi.getProfile(profileData._id);
+
+                        if (response && (response.data || response)) {
+                            const completeProfile = response.data || response;
+                            profileData = { ...profileData, ...completeProfile };
+                            localStorage.setItem('user', JSON.stringify(profileData));
+                            if (setUser) {
+                                setUser(profileData);
+                            }
+                        }
+                    } catch (profileError) {
+                        console.error("Failed to fetch complete profile:");
                     }
                 }
 
-                // Format data for form
+                if (!profileData) {
+                    const storedUser = localStorage.getItem('user');
+                    if (storedUser) {
+                        try {
+                            profileData = JSON.parse(storedUser);
+                        } catch (parseError) {
+                            console.error("Error parsing user from localStorage:");
+                        }
+                    }
+
+                    if (!profileData) {
+                        try {
+                            const response = await mockApi.getProfile();
+                            if (response && (response.data || response)) {
+                                profileData = response.data || response;
+                                localStorage.setItem('user', JSON.stringify(profileData));
+                                if (setUser) {
+                                    setUser(profileData);
+                                }
+                            }
+                        } catch (apiError) {
+                            console.error("API fetch error:", apiError);
+                        }
+                    }
+                }
+
                 if (profileData) {
-                    // In the useEffect's setFormData
-                    setFormData({
+                    const formattedData = {
                         name: profileData.name || '',
                         phone: profileData.phone || '',
                         bio: profileData.bio || '',
-                        skills: profileData.skills?.join(', ') || '',  // Convert array to string
-                        education: profileData.education?.map(edu => ({
+                        skills: Array.isArray(profileData.skills) ? profileData.skills.join(', ') : '',
+                        education: Array.isArray(profileData.education) ? profileData.education.map(edu => ({
                             institution: edu.institution || '',
                             degree: edu.degree || '',
-                            startYear: edu.startYear?.toString() || '',  // Convert numbers to strings
+                            startYear: edu.startYear?.toString() || '',
                             endYear: edu.endYear?.toString() || ''
-                        })) || [],
-                        workExperience: profileData.workExperience?.map(exp => ({
+                        })) : [],
+                        workExperience: Array.isArray(profileData.workExperience) ? profileData.workExperience.map(exp => ({
                             company: exp.company || '',
                             position: exp.position || '',
                             startDate: exp.startDate ? new Date(exp.startDate).toISOString().split('T')[0] : '',
                             endDate: exp.endDate ? new Date(exp.endDate).toISOString().split('T')[0] : '',
                             description: exp.description || ''
-                        })) || [],
+                        })) : [],
                         resume: profileData.resume || '',
                         companyName: profileData.companyName || '',
                         companyWebsite: profileData.companyWebsite || '',
                         companyDescription: profileData.companyDescription || ''
-                    });
-                    
-                    // Update context if available
-                    if (typeof setUser === 'function') {
-                        setUser(profileData);
-                    }
+                    };
+                    setFormData(formattedData);
+                    setProfileLoaded(true);
                 }
             } catch (error) {
                 toast.error('Failed to load profile data');
@@ -75,7 +104,7 @@ function ProfileForm() {
         };
 
         fetchProfile();
-    }, [user, setUser]);
+    }, [user, setUser, profileLoaded]);
 
     const handleArrayUpdate = (field, index, key, value) => {
         const updated = [...formData[field]];
@@ -87,34 +116,43 @@ function ProfileForm() {
         e.preventDefault();
         try {
             const payload = {
-                ...formData,
-                skills: formData.skills.split(',').map(s => s.trim()).filter(s => s),
+                _id: user?._id,
+                email: user?.email,
+                role: user?.role,
+                name: formData.name,
+                phone: formData.phone,
+                bio: formData.bio,
+                skills: typeof formData.skills === 'string' ? formData.skills.split(',').map(s => s.trim()).filter(s => s) : formData.skills,
                 education: formData.education.map(edu => ({
                     ...edu,
-                    startYear: Number(edu.startYear),
-                    endYear: Number(edu.endYear)
-                }))
+                    startYear: edu.startYear ? Number(edu.startYear) : null,
+                    endYear: edu.endYear ? Number(edu.endYear) : null
+                })),
+                workExperience: formData.workExperience,
+                resume: formData.resume,
+                companyName: formData.companyName,
+                companyWebsite: formData.companyWebsite,
+                companyDescription: formData.companyDescription
             };
-
-            const updatedUser = await mockApi.updateProfile(payload);
-            const freshUserData = updatedUser.data.data; // Access nested data
-
-            // Update both context and localStorage
+            localStorage.setItem('user', JSON.stringify(payload));
             if (typeof setUser === 'function') {
-                setUser(freshUserData);
+                setUser(payload);
             }
-            localStorage.setItem('user', JSON.stringify(freshUserData));
 
-            // Temporary solution until AuthContext is fixed
-            if (typeof setUser === 'function') {
-                setUser(updatedUser);
-            } else {
+            const response = await mockApi.updateProfile(payload);
+            if (response && (response.data || response)) {
+                const updatedUser = response.data || response;
+
                 localStorage.setItem('user', JSON.stringify(updatedUser));
-                window.location.reload(); // Force refresh to update user state
-            }
+                if (typeof setUser === 'function') {
+                    setUser(updatedUser);
+                }
 
-            toast.success('Profile updated successfully!');
-            navigate('/dashboard');
+                toast.success('Profile updated successfully!');
+                navigate('/dashboard');
+            } else {
+                throw new Error('Failed to update profile');
+            }
         } catch (error) {
             toast.error(error.message || 'Failed to update profile');
             console.error('Profile Update Error:', {
@@ -238,20 +276,18 @@ function ProfileForm() {
                             ))}
                         </div>
 
-                        {/* Resume URL Field - Moved inside applicant section */}
                         <div className="space-y-2">
                             <label className="block text-sm font-medium text-gray-300">Resume URL</label>
                             <input
                                 className="w-full px-4 py-2 bg-gray-700 rounded-md text-white focus:ring-primary-500"
                                 value={formData.resume}
-                                onChange={e => setFormData({...formData, resume: e.target.value})}
+                                onChange={e => setFormData({ ...formData, resume: e.target.value })}
                                 type="url"
                                 placeholder="https://drive.google.com/your-resume-link"
                                 required
                             />
                         </div>
 
-                        {/* Work Experience Section - Fixed placement */}
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
                                 <h3 className="text-lg font-semibold text-gray-100">Work Experience</h3>
@@ -259,12 +295,12 @@ function ProfileForm() {
                                     type="button"
                                     onClick={() => setFormData(prev => ({
                                         ...prev,
-                                        workExperience: [...prev.workExperience, { 
-                                            company: '', 
-                                            position: '', 
-                                            startDate: '', 
-                                            endDate: '', 
-                                            description: '' 
+                                        workExperience: [...prev.workExperience, {
+                                            company: '',
+                                            position: '',
+                                            startDate: '',
+                                            endDate: '',
+                                            description: ''
                                         }]
                                     }))}
                                     className="btn-primary py-2 px-4 text-sm"
@@ -272,9 +308,9 @@ function ProfileForm() {
                                     Add Experience
                                 </button>
                             </div>
-                            
+
                             {formData.workExperience.map((exp, index) => (
-                                <div key={index} className="space-y-4 p-4 bg-gray-700 rounded-lg">  {/* Changed from bg-gray-800 to match education section */}
+                                <div key={index} className="space-y-4 p-4 bg-gray-700 rounded-lg">
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-2">
                                             <label className="block text-sm font-medium text-gray-300">Company *</label>
@@ -295,7 +331,7 @@ function ProfileForm() {
                                             />
                                         </div>
                                     </div>
-                                    
+
                                     <div className="grid gap-4 md:grid-cols-2">
                                         <div className="space-y-2">
                                             <label className="block text-sm font-medium text-gray-300">Start Date</label>
@@ -304,35 +340,34 @@ function ProfileForm() {
                                                 className="w-full px-4 py-2 bg-gray-600 rounded-md text-white focus:ring-primary-500"
                                                 value={exp.startDate}
                                                 onChange={e => handleArrayUpdate('workExperience', index, 'startDate', e.target.value)}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="block text-sm font-medium text-gray-300">End Date</label>
-                                                <input
-                                                    type="date"
-                                                    className="w-full px-4 py-2 bg-gray-600 rounded-md text-white focus:ring-primary-500"
-                                                    value={exp.endDate}
-                                                    onChange={e => handleArrayUpdate('workExperience', index, 'endDate', e.target.value)}
-                                                />
-                                            </div>
+                                            />
                                         </div>
-
                                         <div className="space-y-2">
-                                            <label className="block text-sm font-medium text-gray-300">Description</label>
-                                            <textarea
+                                            <label className="block text-sm font-medium text-gray-300">End Date</label>
+                                            <input
+                                                type="date"
                                                 className="w-full px-4 py-2 bg-gray-600 rounded-md text-white focus:ring-primary-500"
-                                                value={exp.description}
-                                                onChange={e => handleArrayUpdate('workExperience', index, 'description', e.target.value)}
-                                                rows="3"
+                                                value={exp.endDate}
+                                                onChange={e => handleArrayUpdate('workExperience', index, 'endDate', e.target.value)}
                                             />
                                         </div>
                                     </div>
+
+                                    <div className="space-y-2">
+                                        <label className="block text-sm font-medium text-gray-300">Description</label>
+                                        <textarea
+                                            className="w-full px-4 py-2 bg-gray-600 rounded-md text-white focus:ring-primary-500"
+                                            value={exp.description}
+                                            onChange={e => handleArrayUpdate('workExperience', index, 'description', e.target.value)}
+                                            rows="3"
+                                        />
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     </>
                 )}
 
-                {/* Recruiter Section - Fixed proper closing */}
                 {user?.role === 'recruiter' && (
                     <div className="space-y-6">
                         <h3 className="text-lg font-semibold text-gray-100">Company Information</h3>
