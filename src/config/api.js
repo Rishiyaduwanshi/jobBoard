@@ -21,7 +21,7 @@ export const API_ENDPOINTS = {
   },
   USER: {
     PROFILE: '/profile',
-    APPLICATIONS: 'user/applications',
+    APPLICATIONS: 'applicant/applications',
     SAVED_JOBS: 'user/saved-jobs',
   },
   NOTIFICATIONS: {
@@ -31,7 +31,8 @@ export const API_ENDPOINTS = {
 
   APPLICATIONS: {
     BASE: '/applications',
-    UPDATE_STATUS: '/applications/status'
+    UPDATE_STATUS: '/applications/status',
+    APPLICANT: '/applicant/applications',
   }
 };
 
@@ -218,10 +219,9 @@ export const mockApi = {
     }
   },
 
-  getApplications: async (jobId, status) => {
+  getApplicantApplications: async (jobId, status) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS.BASE}`, {
-        params: { jobId, status },
+      const response = await axios.get(`${API_BASE_URL}${API_ENDPOINTS.APPLICATIONS.APPLICANT}`, {
         withCredentials: true
       });
       return response.data.data;
@@ -258,36 +258,36 @@ export const mockApi = {
     }
   },
 
-    getProfile: async () => {
-      try {
-        const response = await axios.get(
-          `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
-          { withCredentials: true }
-        );
-        return response.data;
-      } catch (error) {
-        throw new Error(error.response?.data?.message || 'Failed to fetch profile');
-      }
-    },
-  
-    updateProfile: async (data) => {
-      try {
-        const response = await axios.patch(
-          `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
-          data,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            withCredentials: true
-          }
-        );
-        return response.data.data;
-      } catch (error) {
-        const message = error.response?.data?.message ||
-          error.message ||
-          'Profile update failed';
-        throw new Error(message);
-      }
-    },
+  getProfile: async () => {
+    try {
+      const response = await axios.get(
+        `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
+        { withCredentials: true }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch profile');
+    }
+  },
+
+  updateProfile: async (data) => {
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}${API_ENDPOINTS.USER.PROFILE}`,
+        data,
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      const message = error.response?.data?.message ||
+        error.message ||
+        'Profile update failed';
+      throw new Error(message);
+    }
+  },
 };
