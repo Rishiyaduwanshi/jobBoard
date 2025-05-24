@@ -6,7 +6,7 @@ A modern and responsive job recruitment platform built using **React + Vite**, e
 
 ## 📌 **Live Demo & API**  
 - 🌍 **Frontend URL:** [https://jobboard-cts.pages.dev/jobs](https://jobboard-cts.pages.dev/jobs)  
-- ⚙️ **Backend API:** [https://job-board-w9i4v.ondigitalocean.app/](https://job-board-w9i4v.ondigitalocean.app/)  
+- ⚙️ **Backend API:** [https://job-board-s7zgm.ondigitalocean.app/](https://job-board-s7zgm.ondigitalocean.app/)  
 - ⚙️ **Backend Repo:** [https://github.com/rishiyaduwanshi/jobboard-backend](https://github.com/rishiyaduwanshi/jobboard-backend)  
 - 📚 **Postman Collection:** [View API Documentation](https://documenter.getpostman.com/view/33766937/2sAYkHncvT)  
 
